@@ -1,4 +1,4 @@
-# 🎼 OpenScore Converter
+# OpenScore Converter
 
 > **An open-source tool for converting, editing, transcribing and progressively simplifying music scores.**
 
@@ -15,7 +15,7 @@ Everything should be usable locally and improved by the community.
 
 ---
 
-## 🎯 Why this project?
+## Why this project?
 
 There are already many MIDI-to-sheet-music and sheet-music-to-MIDI converters.
 
@@ -36,9 +36,9 @@ The objective is to produce a result that a **human musician would actually want
 
 ---
 
-# ✨ Main goals
+# Main goals
 
-## 🎹 MIDI → Sheet Music
+## MIDI → Sheet Music
 
 Convert MIDI files into clean and readable scores.
 
@@ -63,7 +63,7 @@ Instead of blindly translating MIDI events into notation, the software will atte
 
 ---
 
-## 📄 Sheet Music → MIDI
+## Sheet Music → MIDI
 
 The reverse conversion will also be supported.
 
@@ -82,7 +82,7 @@ The reconstructed score can then be exported to MIDI or other formats.
 
 ---
 
-# ✏️ Integrated Score Editor
+# Integrated Score Editor
 
 Before building advanced conversion systems, OpenScore Converter will first provide its own integrated score editor.
 
@@ -111,7 +111,7 @@ The editor will act as the central workspace for all conversions.
 
 ---
 
-# 🧠 Intelligent Transcription
+# Intelligent Transcription
 
 A MIDI file usually contains enough information to determine **what was played**.
 
@@ -155,29 +155,29 @@ The goal is to use it **where it actually improves the music**.
 
 ---
 
-# 🎚️ Transcription Modes
+# Transcription Modes
 
 The software is planned to offer several transcription modes.
 
-### 🎯 Faithful
+### Faithful
 
 Preserve the original performance as accurately as possible.
 
 Best for studying exactly what was played.
 
-### 📖 Readable
+### Readable
 
 Clean timing imperfections and prioritize conventional, readable notation.
 
 Best for normal sheet music.
 
-### 🌱 Simplified
+### Simplified
 
 Reduce unnecessary complexity while preserving the musical identity of the piece.
 
 Best for learners or easier arrangements.
 
-### ✨ Engraving
+### Engraving
 
 Prioritize professional-looking notation and musical conventions.
 
@@ -185,7 +185,7 @@ Best for publication-quality results.
 
 ---
 
-# 🌱 Progressive Difficulty System
+# Progressive Difficulty System
 
 One of the long-term goals of OpenScore Converter is to go beyond simple transcription.
 
@@ -272,7 +272,7 @@ This system could eventually provide an experience inspired by progressive-learn
 
 ---
 
-# 🔎 Assisted Validation
+# Assisted Validation
 
 Automatic transcription will never be perfect.
 
@@ -295,7 +295,7 @@ This becomes especially useful for batch conversion.
 
 ---
 
-# 🤝 Learning From Human Corrections
+# Learning From Human Corrections
 
 A future optional system could allow users to contribute corrections to improve transcription models.
 
@@ -319,7 +319,7 @@ The software itself should remain fully usable offline without sending personal 
 
 ---
 
-# 📦 Supported Formats
+# Supported Formats
 
 ## Initial development
 
@@ -372,7 +372,7 @@ other score formats
 
 ---
 
-# 🎵 MusicXML
+# MusicXML
 
 MusicXML will be used as one of the main interchange formats.
 
@@ -394,7 +394,7 @@ difficulty information
 
 ---
 
-# 🔊 Playback
+# Playback
 
 Audio playback is not part of the first development phase.
 
@@ -419,7 +419,7 @@ This would eventually allow the editor to function both as a notation environmen
 
 ---
 
-# 🏗️ Planned Architecture
+# Planned Architecture
 
 The project will use a hybrid **Python + C++** architecture.
 
@@ -641,9 +641,9 @@ This will require advanced musical analysis and will likely become one of the la
 
 ---
 
-# 🧪 Current Status
+# Current Status
 
-> 🚧 **Very early development / planning stage**
+> **Very early development / planning stage**
 
 Current priority:
 
@@ -655,7 +655,7 @@ MIDI conversion, AI transcription and Optical Music Recognition will be implemen
 
 ---
 
-# 🌍 Open Source Philosophy
+# Open Source Philosophy
 
 OpenScore Converter is intended to remain:
 
@@ -675,7 +675,7 @@ The project aims to provide an open platform that musicians, developers, researc
 
 ---
 
-# 🤝 Contributions
+# Contributions
 
 Contributions will be welcome once the initial architecture is stable.
 
@@ -700,7 +700,7 @@ Musicians without programming experience will also be valuable contributors by t
 
 ---
 
-# 📜 License
+# License
 
 This project is intended to be released under the **GNU General Public License v3.0 (GPLv3)**.
 
@@ -708,7 +708,7 @@ The objective is to keep the project and its derivatives open and accessible to 
 
 ---
 
-# 🚀 Long-Term Vision
+# Long-Term Vision
 
 OpenScore Converter should eventually become more than a converter.
 
@@ -732,3 +732,5 @@ All locally.
 All for free.
 
 All open source.
+
+(Thanks Chat GPT for the good explanation for this project cause I suck for that😅, no more use of AI now!)
