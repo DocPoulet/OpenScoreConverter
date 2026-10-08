@@ -1,4 +1,4 @@
-"""Central dark desktop theme for v0.0.1."""
+"""Central dark desktop theme for v0.0.3."""
 
 APP_STYLESHEET = """
 QMainWindow, QWidget#root { background-color: #10151f; color: #edf1f7; }
@@ -17,7 +17,10 @@ QToolButton:disabled { color: #6e798a; }
 QStatusBar { background: #141c28; color: #aebdd1; border-top: 1px solid #28364c; }
 QStatusBar::item { border: 0; }
 QFrame#heroCard { border: 1px solid #2e425e; background: #172335; border-radius: 17px; }
-QFrame#scorePlaceholder { border: 2px dashed #384963; border-radius: 14px; background: #121c2a; }
+QFrame#scorePreviewFrame { border: 1px solid #384963; border-radius: 12px; background: #121c2a; }
+QGraphicsView { background: #1c2635; border: 0; }
+QPushButton { background: #263448; color: #eff4fc; border: 1px solid #3b526d; border-radius: 7px; padding: 6px 12px; }
+QPushButton:hover { background: #354861; }
 QLabel#brandSymbol { font-size: 46pt; color: #74bafc; }
 QLabel#heroTitle { font-size: 24pt; font-weight: 700; color: #f5f7fc; }
 QLabel#pageTitle { font-size: 19pt; font-weight: 600; color: #f5f7fc; }

@@ -3,7 +3,7 @@ setlocal
 cd /d "%~dp0"
 
 echo ======================================
-echo OpenScore Converter v0.0.1 - Setup
+echo OpenScore Converter v0.0.3 - Setup
 echo ======================================
 
 where py >nul 2>nul

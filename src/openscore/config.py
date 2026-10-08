@@ -1,4 +1,4 @@
-"""Application constants for the first release."""
+"""Application constants for the current release."""
 
 from . import __version__
 

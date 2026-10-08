@@ -1,6 +1,7 @@
-"""Welcome and empty-project views for the v0.0.1 shell."""
+"""Welcome and empty-project views for the v0.0.2 shell."""
 
 from PySide6.QtCore import Qt, Signal
+
 from PySide6.QtWidgets import (
     QFrame,
     QHBoxLayout,
@@ -19,6 +20,7 @@ class WelcomeView(QWidget):
     """
 
     new_requested = Signal()
+    demo_requested = Signal()
 
     def __init__(self, parent: QWidget | None = None) -> None:
         """Create the welcome page and connect the primary action."""
@@ -40,7 +42,7 @@ class WelcomeView(QWidget):
         icon.setAlignment(Qt.AlignmentFlag.AlignHCenter)
         card_layout.addWidget(icon)
 
-        version = QLabel("OPEN-SOURCE SCORE EDITOR   /   V0.0.1")
+        version = QLabel("OPEN-SOURCE SCORE EDITOR   /   V0.0.3")
         version.setObjectName("eyebrow")
         version.setAlignment(Qt.AlignmentFlag.AlignHCenter)
         card_layout.addWidget(version)
@@ -65,11 +67,15 @@ class WelcomeView(QWidget):
         button.setCursor(Qt.CursorShape.PointingHandCursor)
         button.clicked.connect(lambda _checked=False: self.new_requested.emit())
         actions.addWidget(button)
+        demo = QPushButton("View example score")
+        demo.setCursor(Qt.CursorShape.PointingHandCursor)
+        demo.clicked.connect(lambda _checked=False: self.demo_requested.emit())
+        actions.addWidget(demo)
         actions.addStretch(1)
         card_layout.addLayout(actions)
         card_layout.addSpacing(13)
 
-        note = QLabel("Foundation release · Musical editing starts in upcoming versions")
+        note = QLabel("See the first staff preview · Editing arrives in v0.0.4")
         note.setObjectName("mutedLabel")
         note.setAlignment(Qt.AlignmentFlag.AlignCenter)
         note.setWordWrap(True)
@@ -79,58 +85,3 @@ class WelcomeView(QWidget):
         root.addStretch(2)
 
 
-class ProjectPlaceholderView(QWidget):
-    """Display an honest placeholder for an active, unsaved project.
-
-    Inputs:
-        name: current project name, through `set_project_name`.
-    """
-
-    def __init__(self, parent: QWidget | None = None) -> None:
-        """Build a blank musical workspace placeholder."""
-        super().__init__(parent)
-        self.setObjectName("root")
-        layout = QVBoxLayout(self)
-        layout.setContentsMargins(36, 27, 36, 32)
-        layout.setSpacing(16)
-
-        self.project_title = QLabel("Untitled")
-        self.project_title.setObjectName("pageTitle")
-        layout.addWidget(self.project_title)
-
-        description = QLabel("New in-memory project · Not saved to disk")
-        description.setObjectName("subtitle")
-        layout.addWidget(description)
-
-        canvas = QFrame()
-        canvas.setObjectName("scorePlaceholder")
-        canvas_layout = QVBoxLayout(canvas)
-        canvas_layout.setContentsMargins(30, 30, 30, 30)
-        canvas_layout.addStretch(1)
-
-        placeholder_title = QLabel("Empty score workspace")
-        placeholder_title.setObjectName("pageTitle")
-        placeholder_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        canvas_layout.addWidget(placeholder_title)
-
-        placeholder_text = QLabel(
-            "The score model arrives in v0.0.2.\n"
-            "Sheet music rendering and editing will follow."
-        )
-        placeholder_text.setObjectName("mutedLabel")
-        placeholder_text.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        placeholder_text.setWordWrap(True)
-        canvas_layout.addWidget(placeholder_text)
-        canvas_layout.addStretch(1)
-        layout.addWidget(canvas, stretch=1)
-
-    def set_project_name(self, name: str) -> None:
-        """Update the visible project name.
-
-        Args:
-            name: Name to display.
-
-        Returns:
-            None.
-        """
-        self.project_title.setText(name)

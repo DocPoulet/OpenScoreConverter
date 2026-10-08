@@ -8,11 +8,12 @@ from PySide6.QtWidgets import QMainWindow, QMessageBox, QStackedWidget, QToolBar
 
 from ..config import APP_NAME, APP_ORGANIZATION, VERSION
 from ..core.project import ProjectSession
-from .widgets.welcome_view import ProjectPlaceholderView, WelcomeView
+from .widgets.score_workspace import ScoreWorkspace
+from .widgets.welcome_view import WelcomeView
 
 
 class MainWindow(QMainWindow):
-    """Main window for the v0.0.1 application.
+    """Main window for the v0.0.3 notation preview.
 
     Inputs: none; project state is initially empty.
     Outputs: signals/actions perform only the features this version supports.
@@ -29,17 +30,18 @@ class MainWindow(QMainWindow):
 
         self._pages = QStackedWidget(self)
         self._welcome = WelcomeView(self)
-        self._project = ProjectPlaceholderView(self)
+        self._project = ScoreWorkspace(self)
         self._pages.addWidget(self._welcome)
         self._pages.addWidget(self._project)
         self._pages.setCurrentWidget(self._welcome)
         self.setCentralWidget(self._pages)
         self._welcome.new_requested.connect(self.create_new_project)
+        self._welcome.demo_requested.connect(self.open_demo_project)
 
         self._build_actions()
         self._build_menus()
         self._build_toolbar()
-        self.statusBar().showMessage("Ready — v0.0.1 foundation")
+        self.statusBar().showMessage("Ready — v0.0.3 score preview")
 
         settings = QSettings(APP_ORGANIZATION, APP_NAME)
         saved_geometry = settings.value("main_window/geometry")
@@ -50,8 +52,12 @@ class MainWindow(QMainWindow):
         """Create actions and connect only implemented commands."""
         self.new_action = QAction("&New score", self)
         self.new_action.setShortcut(QKeySequence.StandardKey.New)
-        self.new_action.setStatusTip("Create an empty in-memory score project")
+        self.new_action.setStatusTip("Create a new in-memory piano score")
         self.new_action.triggered.connect(self.create_new_project)
+
+        self.demo_action = QAction("Open &example score", self)
+        self.demo_action.setStatusTip("Preview notes, rests and chords in an example score")
+        self.demo_action.triggered.connect(self.open_demo_project)
 
         self.open_action = QAction("&Open…", self)
         self.open_action.setShortcut(QKeySequence.StandardKey.Open)
@@ -91,6 +97,7 @@ class MainWindow(QMainWindow):
         """Create the File, Edit, View and Help menus."""
         file_menu = self.menuBar().addMenu("&File")
         file_menu.addAction(self.new_action)
+        file_menu.addAction(self.demo_action)
         file_menu.addSeparator()
         file_menu.addAction(self.open_action)
         file_menu.addAction(self.save_action)
@@ -116,17 +123,26 @@ class MainWindow(QMainWindow):
         toolbar.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextOnly)
         self.addToolBar(toolbar)
         toolbar.addAction(self.new_action)
+        toolbar.addAction(self.demo_action)
         toolbar.addSeparator()
         toolbar.addAction(self.open_action)
         toolbar.addAction(self.save_action)
 
     def create_new_project(self) -> None:
-        """Create an in-memory project placeholder and display its page."""
+        """Create a real in-memory piano score and show its summary."""
         self.session.create_new()
-        self._project.set_project_name(self.session.name or "Untitled")
+        self._project.set_score(self.session.score)
         self._pages.setCurrentWidget(self._project)
         self.setWindowTitle(f"{self.session.name} — {APP_NAME}")
-        self.statusBar().showMessage("New score created in memory — saving is not yet available", 8000)
+        self.statusBar().showMessage("Blank treble staff ready · Choose 'Open example score' to see notation", 8000)
+
+    def open_demo_project(self) -> None:
+        """Show a built-in score demonstrating the read-only notation renderer."""
+        self.session.load_demo()
+        self._project.set_score(self.session.score)
+        self._pages.setCurrentWidget(self._project)
+        self.setWindowTitle(f"{self.session.name} — {APP_NAME}")
+        self.statusBar().showMessage("Example score loaded · hover notes for pitch and duration", 8000)
 
     def show_about(self) -> None:
         """Display project version and license information."""
@@ -135,7 +151,7 @@ class MainWindow(QMainWindow):
             f"About {APP_NAME}",
             f"{APP_NAME} v{VERSION}\n\n"
             "Open-source music transcription and score editing.\n"
-            "Current release: foundation only.\n\n"
+            "Current release: read-only staff and note rendering.\n\n"
             "License: GNU GPL-3.0-only",
         )
 

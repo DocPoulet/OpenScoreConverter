@@ -1,36 +1,50 @@
-"""Project shell for v0.0.1. This is not yet a musical score model."""
+"""Current project session and its independent in-memory musical score."""
 
 from dataclasses import dataclass
+
+from ..score import Score, create_blank_piano_score, create_demo_piano_score
 
 
 @dataclass(slots=True)
 class ProjectSession:
-    """Track the currently active, unsaved project placeholder.
+    """Keep one active editable score in memory; persistence comes later.
 
-    Inputs: `name` is the optional display name of the active project.
-    Outputs: the `has_project` property exposes whether one exists.
+    Attributes:
+        name: Display name, or None when no score is open.
+        score: Musical document, or None when no project is open.
     """
 
     name: str | None = None
+    score: Score | None = None
 
     @property
     def has_project(self) -> bool:
-        """Return True if a placeholder project has been created."""
-        return self.name is not None
+        """Return True when the session owns a real musical score."""
+        return self.score is not None
 
     def create_new(self, name: str = "Untitled") -> None:
-        """Replace the current in-memory project with a new placeholder.
+        """Replace the project with a fresh piano right-hand score.
 
-        Args:
-            name: Display name of the new project; cannot be blank.
-
-        Returns:
-            None. Updates the current instance in place.
+        Args: display name, which cannot be blank.
+        Returns: None. Previous in-memory score is replaced.
         """
-        if not name.strip():
+        if not isinstance(name, str) or not name.strip():
             raise ValueError("Project name cannot be blank")
-        self.name = name.strip()
+        title = name.strip()
+        new_score = create_blank_piano_score(title)
+        self.name = title
+        self.score = new_score
+
+    def load_demo(self) -> None:
+        """Replace the active project with a read-only preview score.
+
+        Args: none.
+        Returns: None. The score remains in memory, not saved to disk.
+        """
+        self.score = create_demo_piano_score()
+        self.name = self.score.title
 
     def clear(self) -> None:
-        """Return to the state where no project is open."""
+        """Return to welcome state by dropping the active score."""
         self.name = None
+        self.score = None
