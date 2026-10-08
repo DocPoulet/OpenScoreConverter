@@ -1,4 +1,4 @@
-"""A sample score used to inspect v0.0.3 rendering without editing tools."""
+"""Sample score for demonstrating rendering and v0.0.4 interaction."""
 
 from fractions import Fraction as F
 

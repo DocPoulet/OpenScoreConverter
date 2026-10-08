@@ -2,7 +2,7 @@
 
 **Free, offline-first, open-source music transcription, score editing and progressive music learning.**
 
-> 🚧 **Current version: v0.0.3 — First graphical notation preview.** You can create an empty staff and inspect a four-bar example score. **The preview is read-only**: MIDI/PDF conversion, interactive score editing, saving music files and playback are not available yet.
+> 🚧 **Current version: v0.0.4 — Interactive note editing.** You can select, create, delete and change notes in a right-hand piano staff. **All edits live only in memory:** saving, Undo/Redo, MIDI/PDF conversion and playback are not available yet.
 
 ## Vision
 
@@ -10,16 +10,21 @@ OpenScore Converter aims to convert between **MIDI, readable PDF sheet music, Mu
 
 A longer-term vision includes a full score editor, hybrid algorithmic/AI-assisted transcription, batch processing and a **progressive difficulty system**: a series of increasingly faithful arrangements to help beginners learn songs they enjoy. The project is designed to remain free, local and open source — no accounts, subscriptions or paid APIs.
 
-## ✨ What's new in v0.0.3?
+## ✨ What's new in v0.0.4?
 
-- **Real score preview:** five-line staff, treble clef, 4/4 meter and bar lines.
-- **Notes and rests:** filled/hollow noteheads, stems, individual flags, chords, ledger lines, sharps/flats/naturals, dots and basic triplet markers.
-- **Example score:** four complete measures to examine without needing note-entry tools.
-- **Zoom and scrolling:** clickable controls and a pannable, vector-based score page.
-- **Tooltips and item IDs:** hover rendered notes/rests to inspect pitch and duration; IDs prepare future selection/editing.
-- **Existing music model unchanged:** exact fractions, multiple independent voices in memory, validation and C++17/CMake foundation from v0.0.2.
+- **Interactive score editor:** click noteheads, rests or chords to select them; Ctrl+click to select more than one event.
+- **Add Note tool:** choose a duration and an accidental, then click inside a displayed staff/measure to insert a snapped single note. The exact measure position is preserved in the score model.
+- **Properties inspector:** change a single selected note's pitch letter, octave and accidental, or change a selected event's duration.
+- **Delete / Backspace:** remove selected notes, chords or rests; multi-selection deletion is supported.
+- **Keyboard note entry:** in Add Note mode, press A–G to append a note to the active measure. Use keys 1–5 to choose whole, half, quarter, eighth or sixteenth notes.
+- **Arrow key controls:** ↑/↓ transpose a *single* selected note by one staff position; ←/→ navigate events in the selected measure.
+- **More measures:** add a measure with `+ Measure` and continue editing.
+- **Validation:** reject note insertion/length changes that overlap another event in the same voice or extend outside the bar. Failed operations leave the existing score unchanged.
+- **Safe warnings:** a dirty-document marker and confirmation when leaving/replacing a modified project (because project persistence is not available yet).
 
-**Display limitations:** This is an early preview, not publication-quality notation. It renders the first staff only, targeting right-hand piano in **C major, treble clef**. No beams or complete tuplet engraving; simultaneous voices may collide. Unsupported lengths are labelled explicitly rather than silently drawn as wrong notes. Extended key signatures and meter changes are not fully engraved yet.
+The current rendering engine is **kept in its simple v0.0.3 form**, with only hit-testing/selection support added. The planned renderer/glyph/style architectural cleanup remains scheduled **after v0.1.0, in v0.1.1**.
+
+**Limits:** only the first treble-clef staff is editable visually; adding a note creates one note, not a chord. Existing chords/rests can be selected/deleted and their duration adjusted, but you can't modify an individual chord pitch yet. No mouse dragging of notes, ties/slurs/beams or professional page layout. Key signatures other than C major are not fully engraved. No file save or Undo/Redo yet.
 
 ## 🚀 Install and launch on Windows
 
@@ -27,8 +32,10 @@ A longer-term vision includes a full score editor, hybrid algorithmic/AI-assiste
 2. Extract the ZIP containing this repository.
 3. Double-click **`setup_windows.bat`** (initial dependency installation requires internet).
 4. Double-click **`run_windows.bat`**.
-5. On the welcome page, choose **View example score**, or choose **File → Open example score**.
-6. Use the **− / + / 100%** controls; hover noteheads to see their pitch and duration.
+5. Choose **New score** to enter your own notes, or **View example score** to modify existing ones.
+6. Click **Add note**, select a note duration, and click a position on the staff; click **Select** to pick an existing note.
+7. Use the note-properties panel to change the selected note. To add a bar, click **+ Measure**.
+8. **Important:** edited music will be lost after exiting this version; Save remains disabled.
 
 Alternatively in PowerShell:
 
@@ -42,7 +49,7 @@ This is the source code, not a standalone executable. Once installed, normal usa
 
 ### New score versus example score
 
-`New score` makes a **blank** right-hand piano Score with a visible 4/4 staff. The example loads a separate **in-memory** Score containing quarter/eighth/half/whole notes, a half-note chord, rests, a sharp, a dotted note and an extra ledger line. Opening either one replaces the previous in-memory project; **saving isn't implemented yet**.
+`New score` makes a **blank** right-hand piano Score with a visible 4/4 staff. The example loads a separate **in-memory** Score containing quarter/eighth/half/whole notes, a half-note chord, rests, a sharp and a dotted note. **No save/load exists yet**; a confirmation dialog protects against accidental loss when you switch projects or close the app.
 
 ## 🏗️ Structure
 
@@ -51,7 +58,8 @@ src/openscore/
   score/                     Qt-free score model + example data
   engraving/layout.py        Exact duration and staff-position calculations
   ui/notation/               QGraphicsScene vector renderer
-  ui/widgets/                Welcome page and score preview workspace
+  ui/widgets/                Welcome page and interactive score editor
+  editor/                    Qt-independent validated edit operations
   core/                      Current in-memory project
   io/                        Future format adapters
   transcription/             Future MIDI and AI tools
@@ -62,7 +70,7 @@ tests/                        Pure Python and optional GUI tests
 docs/                         Architecture and release notes
 ```
 
-`MusicXML` is planned as an interchange format, **not** the internal data model. Python handles application/UI and future ML; C++ can later accelerate measured bottlenecks.
+`MusicXML` is planned as an interchange format, **not** the internal data model. Python handles application/UI and future ML; C++ can later accelerate measured bottlenecks. Event paths used for selection are temporary in-memory indices; the command/history system is a v0.0.5 goal.
 
 ## 🧪 Tests
 
@@ -70,7 +78,7 @@ docs/                         Architecture and release notes
 .\.venv\Scripts\python.exe -m unittest discover -s tests -v
 ```
 
-Tests include model checks, exact duration classification, staff note positions and sample-score validation. On a machine with PySide6 installed, they also include offscreen GUI checks; Qt tests are skipped without PySide6.
+Tests include transactional editing checks (overlap, overflow, atomic replacement, note pitch, measures), model validation, engraving helpers and sample-score validation. On a machine with PySide6 installed, they also include offscreen GUI checks; Qt tests are skipped without PySide6.
 
 Optional C++ check (CMake plus a compatible C++17 compiler):
 
@@ -86,12 +94,13 @@ ctest --test-dir cpp/build -C Release --output-on-failure
 | --- | --- |
 | v0.0.1 ✅ | Windows GUI shell / basic menus |
 | v0.0.2 ✅ | Format-independent music model and exact rhythmic times |
-| **v0.0.3 ✅** | **Read-only visual score preview** |
-| v0.0.4 | Add/select/delete notes directly in the staff |
+| v0.0.3 ✅ | Read-only visual score preview |
+| **v0.0.4 ✅** | **Interactive note selection, insertion, deletion, property editing** |
 | v0.0.5 | Undo/Redo |
 | v0.0.6 | More complete musical notation |
 | v0.0.7 | Save/reopen a project |
 | v0.0.8–v0.1.0 | MusicXML and initial usable manual editor |
+| **v0.1.1** | **Renderer refactor: glyphs, layout and configurable score styles** |
 | v0.2–v0.7 | MIDI input, transcription, quantization, readability modes |
 | v0.8–v1.0 | Two-handed piano, voices and PDF exports |
 | Later | Multi-instrument, SF2 playback, PDF/image recognition, AI refinement and progressive difficulty |
@@ -111,4 +120,4 @@ Generate a ladder of playable arrangements from a simple skeleton toward the ori
 
 Licensed under **GNU GPL-3.0-only** (see [`LICENSE`](LICENSE)). Contributions are welcome — see [`CONTRIBUTING.md`](CONTRIBUTING.md). The project is unaffiliated with MuseScore, Rocksmith+ or Ubisoft.
 
-See [`docs/VERSION_0.0.3.md`](docs/VERSION_0.0.3.md) for feature details and known rendering limitations.
+See [`docs/VERSION_0.0.4.md`](docs/VERSION_0.0.4.md) for editing tools, key bindings and known limitations.

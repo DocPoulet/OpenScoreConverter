@@ -13,7 +13,7 @@ from .widgets.welcome_view import WelcomeView
 
 
 class MainWindow(QMainWindow):
-    """Main window for the v0.0.3 notation preview.
+    """Main window for the v0.0.4 interactive note editor.
 
     Inputs: none; project state is initially empty.
     Outputs: signals/actions perform only the features this version supports.
@@ -23,6 +23,7 @@ class MainWindow(QMainWindow):
         """Initialize window, action wiring, pages and persisted geometry."""
         super().__init__()
         self.session = ProjectSession()
+        self._dirty = False
         self.setWindowTitle(APP_NAME)
         self.setWindowIcon(QIcon(str(Path(__file__).resolve().parents[1] / "assets" / "logo.svg")))
         self.resize(1150, 740)
@@ -37,11 +38,13 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(self._pages)
         self._welcome.new_requested.connect(self.create_new_project)
         self._welcome.demo_requested.connect(self.open_demo_project)
+        self._project.feedback.connect(self.statusBar().showMessage)
+        self._project.modified.connect(self._mark_dirty)
 
         self._build_actions()
         self._build_menus()
         self._build_toolbar()
-        self.statusBar().showMessage("Ready — v0.0.3 score preview")
+        self.statusBar().showMessage("Ready — v0.0.4 interactive score editor")
 
         settings = QSettings(APP_ORGANIZATION, APP_NAME)
         saved_geometry = settings.value("main_window/geometry")
@@ -56,7 +59,7 @@ class MainWindow(QMainWindow):
         self.new_action.triggered.connect(self.create_new_project)
 
         self.demo_action = QAction("Open &example score", self)
-        self.demo_action.setStatusTip("Preview notes, rests and chords in an example score")
+        self.demo_action.setStatusTip("Edit notes, rests and chords in the example score")
         self.demo_action.triggered.connect(self.open_demo_project)
 
         self.open_action = QAction("&Open…", self)
@@ -130,19 +133,25 @@ class MainWindow(QMainWindow):
 
     def create_new_project(self) -> None:
         """Create a real in-memory piano score and show its summary."""
+        if not self._confirm_discard():
+            return
         self.session.create_new()
+        self._dirty = False
         self._project.set_score(self.session.score)
         self._pages.setCurrentWidget(self._project)
         self.setWindowTitle(f"{self.session.name} — {APP_NAME}")
-        self.statusBar().showMessage("Blank treble staff ready · Choose 'Open example score' to see notation", 8000)
+        self.statusBar().showMessage("Blank staff ready · Select Add note and click a staff position", 8000)
 
     def open_demo_project(self) -> None:
-        """Show a built-in score demonstrating the read-only notation renderer."""
+        """Show a built-in score containing events that can now be edited."""
+        if not self._confirm_discard():
+            return
         self.session.load_demo()
+        self._dirty = False
         self._project.set_score(self.session.score)
         self._pages.setCurrentWidget(self._project)
         self.setWindowTitle(f"{self.session.name} — {APP_NAME}")
-        self.statusBar().showMessage("Example score loaded · hover notes for pitch and duration", 8000)
+        self.statusBar().showMessage("Example loaded · Click a note to edit it · Unsaved edits will be lost on exit", 8000)
 
     def show_about(self) -> None:
         """Display project version and license information."""
@@ -151,9 +160,28 @@ class MainWindow(QMainWindow):
             f"About {APP_NAME}",
             f"{APP_NAME} v{VERSION}\n\n"
             "Open-source music transcription and score editing.\n"
-            "Current release: read-only staff and note rendering.\n\n"
+            "Current release: editable in-memory treble-clef scores.\n"
+            "Save/load and Undo/Redo are planned for later versions.\n\n"
             "License: GNU GPL-3.0-only",
         )
+
+    def _mark_dirty(self) -> None:
+        """Mark the document as edited; saving is not implemented yet."""
+        self._dirty = True
+        if self.session.has_project:
+            self.setWindowTitle(f"* {self.session.name} — {APP_NAME}")
+
+    def _confirm_discard(self) -> bool:
+        """Ask before discarding unsaved edits; returns True to continue."""
+        if not self._dirty:
+            return True
+        answer = QMessageBox.question(
+            self, "Discard unsaved changes?",
+            "This version cannot save scores yet. Discard your current edits?",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            QMessageBox.StandardButton.No,
+        )
+        return answer == QMessageBox.StandardButton.Yes
 
     def closeEvent(self, event) -> None:  # noqa: N802 (Qt override)
         """Save the window geometry when the user closes the application.
@@ -164,6 +192,9 @@ class MainWindow(QMainWindow):
         Returns:
             None.
         """
+        if not self._confirm_discard():
+            event.ignore()
+            return
         QSettings(APP_ORGANIZATION, APP_NAME).setValue(
             "main_window/geometry", self.saveGeometry()
         )

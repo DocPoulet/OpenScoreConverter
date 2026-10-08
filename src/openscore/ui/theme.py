@@ -1,4 +1,4 @@
-"""Central dark desktop theme for v0.0.3."""
+"""Central dark desktop theme for v0.0.4."""
 
 APP_STYLESHEET = """
 QMainWindow, QWidget#root { background-color: #10151f; color: #edf1f7; }
@@ -33,4 +33,13 @@ QPushButton#primaryButton:pressed { background: #2979cc; }
 QMessageBox { background: #172335; color: #edf1f7; }
 QMessageBox QLabel { color: #edf1f7; }
 QMessageBox QPushButton { min-width: 75px; padding: 6px; }
+
+QFrame#editorInspector { background: #172335; border: 1px solid #384963; border-radius: 11px; }
+QFrame#editorInspector QLabel { color: #dce7f6; }
+QComboBox, QSpinBox { color: #edf1f7; background-color: #243247;
+  border: 1px solid #455a73; padding: 5px 8px; border-radius: 6px; }
+QComboBox:disabled, QSpinBox:disabled { color: #8290a3; background: #182235; }
+QComboBox QAbstractItemView { background: #202e43; color: #edf1f7;
+  selection-background-color: #375d87; }
+QPushButton:checked { background: #3177b8; border: 1px solid #86c6ff; }
 """

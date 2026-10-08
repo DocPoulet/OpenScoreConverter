@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.0.4] — Interactive single-staff editing
+
+### Added
+- Qt-independent `ScoreEditor` with atomic note insertion, deletion and replacements.
+- Interactive select/add-note tools and snapped click-to-insert note positions.
+- Pitch/duration properties, letter-key note entry, navigation and note-value shortcuts.
+- Ctrl+click multi-selection, multi-delete and `+ Measure` command.
+- Selection outlines on Qt notation scene items and preserved zoom when redrawing.
+- Unsaved edit indicator, safe discard confirmations and editing regression tests.
+
+### Not yet implemented
+- Undo/Redo, dragging, professional engraving, persistent save/load, MIDI, PDF and playback.
+
 ## [0.0.3] — Read-only score preview
 
 ### Added

@@ -2,6 +2,6 @@
 
 namespace openscore_native {
 
-std::string_view version() noexcept { return "0.0.2"; }
+std::string_view version() noexcept { return "0.0.4"; }
 
 }  // namespace openscore_native

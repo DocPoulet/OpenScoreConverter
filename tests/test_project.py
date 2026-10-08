@@ -42,7 +42,7 @@ class ProjectSessionTests(unittest.TestCase):
         self.assertIsNone(session.score)
 
     def test_version(self):
-        self.assertEqual(__version__, "0.0.3")
+        self.assertEqual(__version__, "0.0.4")
 
 
 if __name__ == "__main__":

@@ -36,7 +36,7 @@ class ProjectSession:
         self.score = new_score
 
     def load_demo(self) -> None:
-        """Replace the active project with a read-only preview score.
+        """Replace the active project with an editable demonstration score.
 
         Args: none.
         Returns: None. The score remains in memory, not saved to disk.

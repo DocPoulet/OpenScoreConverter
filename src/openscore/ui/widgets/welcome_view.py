@@ -1,4 +1,4 @@
-"""Welcome and empty-project views for the v0.0.2 shell."""
+"""Welcome and empty-project views for the v0.0.4 shell."""
 
 from PySide6.QtCore import Qt, Signal
 
@@ -42,7 +42,7 @@ class WelcomeView(QWidget):
         icon.setAlignment(Qt.AlignmentFlag.AlignHCenter)
         card_layout.addWidget(icon)
 
-        version = QLabel("OPEN-SOURCE SCORE EDITOR   /   V0.0.3")
+        version = QLabel("OPEN-SOURCE SCORE EDITOR   /   V0.0.4")
         version.setObjectName("eyebrow")
         version.setAlignment(Qt.AlignmentFlag.AlignHCenter)
         card_layout.addWidget(version)
@@ -75,7 +75,7 @@ class WelcomeView(QWidget):
         card_layout.addLayout(actions)
         card_layout.addSpacing(13)
 
-        note = QLabel("See the first staff preview · Editing arrives in v0.0.4")
+        note = QLabel("Create your first notes · Select a duration and click the staff")
         note.setObjectName("mutedLabel")
         note.setAlignment(Qt.AlignmentFlag.AlignCenter)
         note.setWordWrap(True)

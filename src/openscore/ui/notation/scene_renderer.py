@@ -1,7 +1,7 @@
-"""Lightweight *preview*, not a professional sheet-music engraving engine.
+"""Qt vector preview with editor hit targets (not a professional engraver).
 
 Draws simple notation using Qt vectors.  Geometry is kept in this component so
-v0.0.4 can add hit testing and editing without changing the musical model.
+v0.0.4 uses the same renderer and model, with small hit-test additions.
 """
 
 from fractions import Fraction
@@ -35,6 +35,8 @@ class ScoreSceneRenderer:
     def __init__(self, scene: QGraphicsScene) -> None:
         """Store a Qt scene; no musical data is copied or changed."""
         self.scene = scene
+        self.measure_geometry: dict[int, tuple[float, float, float, Fraction]] = {}
+        self.selected_paths: set[tuple[int, ...]] = set()
 
     def _line(self, x1: float, y1: float, x2: float, y2: float,
               color: QColor = INK, width: float = 1.4) -> None:
@@ -52,13 +54,15 @@ class ScoreSceneRenderer:
         item.setPos(x, y)
         return item
 
-    def draw(self, score: Score | None) -> None:
+    def draw(self, score: Score | None, selected_paths=()) -> None:
         """Clear old primitives and render one right-hand (treble) staff.
 
         Args: existing Score or None for the empty view.
         Returns: None. Scene items carry a model path in item.data(0).
         """
         self.scene.clear()
+        self.measure_geometry.clear()
+        self.selected_paths = set(selected_paths)
         if score is None or not score.parts or not score.parts[0].staves:
             self._empty_page()
             return
@@ -128,11 +132,14 @@ class ScoreSceneRenderer:
     def _measure(self, bar, bar_idx: int, x0: float, x1: float, top: float) -> None:
         """Position real model events at shared onset slots for all voices."""
         self._text(str(bar.number), x0 + 10, top - 39, 9, MUTED)
+        self.measure_geometry[bar_idx] = (x0, x1, top, bar.duration)
         slots = measure_slots(bar)
         pad_l, pad_r = 56, 45
         usable = max(10, x1 - x0 - pad_l - pad_r)
-        positions = {onset: x0 + pad_l + usable * (slot_idx + .35) / max(1, len(slots))
-                     for slot_idx, onset in enumerate(slots)}
+        # Rhythmic x positions are proportional to written duration, so clicks
+        # in Add Note mode can be snapped to the same time coordinate.
+        positions = {onset: x0 + pad_l + usable * float(onset / bar.duration)
+                     for onset in slots}
         # Tracking written alterations is local to each measure and octave.
         state: dict[tuple[str, int], int] = {}
         events = sorted(
@@ -182,6 +189,9 @@ class ScoreSceneRenderer:
                                          QPen(INK, 1.8), QBrush(PAPER if glyph.base >= Fraction(1, 2) else INK))
             self._tag(head, model_path, f"{pitch} · {event.duration} whole notes")
             y_positions.append(ny)
+        # Larger invisible clicking surface, especially useful for small notes.
+        self._hit_area(x - 18, min(y_positions) - 14, 39,
+                       max(y_positions) - min(y_positions) + 28, model_path)
         if glyph.base != 1:
             # Stems start from the outermost pitch opposite the stem direction.
             anchor_y = max(y_positions) if stem_up else min(y_positions)
@@ -252,13 +262,25 @@ class ScoreSceneRenderer:
                 p.cubicTo(x + 24, fy - 5, x + 16, fy + 10, x + 1, fy + 16)
             item = self.scene.addPath(p, QPen(INK, 2.8, Qt.PenStyle.SolidLine, Qt.PenCapStyle.RoundCap))
         self._tag(item, model_path, f"Rest · {event.duration} whole notes")
+        self._hit_area(x - 17, top + 2, 34, 49, model_path)
         for k in range(glyph.dots):
             self.scene.addEllipse(x + 14 + 9*k, y - 2, 4.2, 4.2, QPen(Qt.PenStyle.NoPen), QBrush(INK))
         if glyph.tuplet:
             self._text("3", x, top - 39, 10, ACCENT, True, True)
 
-    @staticmethod
-    def _tag(item, model_path: tuple[int, ...], tooltip: str) -> None:
-        """Attach a stable path and readable tooltip for later editor hit tests."""
+    def _hit_area(self, x: float, y: float, width: float, height: float,
+                  model_path: tuple[int, ...]) -> None:
+        """Add a transparent tagged click target behind its notation symbol."""
+        brush = (QBrush(QColor(56, 125, 209, 42)) if model_path in self.selected_paths
+                 else QBrush(QColor(0, 0, 0, 0)))
+        item = self.scene.addRect(x, y, width, height, QPen(Qt.PenStyle.NoPen), brush)
+        item.setData(0, model_path)
+        item.setZValue(2)
+
+    def _tag(self, item, model_path: tuple[int, ...], tooltip: str) -> None:
+        """Tag selectable visual items and highlight current selection."""
         item.setData(0, model_path)
         item.setToolTip(tooltip)
+        item.setZValue(3)
+        if model_path in self.selected_paths and hasattr(item, "setPen"):
+            item.setPen(QPen(QColor("#367dd1"), 3.2))
