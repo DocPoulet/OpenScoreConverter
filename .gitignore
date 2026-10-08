@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+dist/
+build/
+
+# Environments
+.venv/
+venv/
+.env
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Native builds
+cpp/build/
+CMakeFiles/
+CMakeCache.txt
+*.obj
+*.o
+*.pyd
+*.dll
+*.exe
+
+# User project files (when supported in future versions)
+*.oscproj

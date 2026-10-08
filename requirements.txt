@@ -1,0 +1,2 @@
+# Install the project (including PySide6) in editable mode.
+-e .
